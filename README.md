@@ -1,11 +1,12 @@
 # react-native-keyevent
+## Config plugin to auto configure react-native-keyevent on prebuild
+### Forked from ChronSyn/react-native-keyevent-expo-config-plugin.git 6/11/2025
+### Modified to uncomment keyevents needed by the Android app
 
-Config plugin to auto configure react-native-keyevent on prebuild
 ### Add the package to your npm dependencies
 
 ```
-yarn add react-native-keyevent
-yarn add --dev react-native-keyevent-expo-config-plugin
+yarn add --dev https://github.com/dhodges47/react-native-keyevent-expo-config-plugin.git
 ```
 
 In your `app.json` or equivalent, add the following;
