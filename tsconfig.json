@@ -1,9 +1,15 @@
 {
-  "extends": "expo-module-scripts/tsconfig.plugin",
   "compilerOptions": {
+    "target": "ES2019",
+    "module": "CommonJS",
+    "lib": ["ES2019"],
+    "declaration": true,
     "outDir": "build",
-    "rootDir": "src"
+    "rootDir": "src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
   },
-  "include": ["./src"],
-  "exclude": ["**/__mocks__/*", "**/__tests__/*"]
+  "include": ["src"],
+  "exclude": ["**/__mocks__/*", "**/__tests__/*", "node_modules"]
 }
