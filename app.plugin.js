@@ -1,1 +1,2 @@
-module.exports = require("./build/withReactNativeKeyevent");
+const withKeyEvent = require('./build/withReactNativeKeyevent');
+module.exports = withKeyEvent;
