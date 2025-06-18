@@ -1,9 +1,31 @@
 import { ConfigPlugin, withMainActivity } from "@expo/config-plugins";
 import { mergeContents } from "@expo/config-plugins/build/utils/generateCode";
 
+const withAndroidMainActivityImport: ConfigPlugin = (config: any) => {
+  return withMainActivity(config, (config) => {
+    const src = config.modResults.contents;
+
+    const importLines = [
+      'import android.view.KeyEvent',
+      'import com.github.kevinejohn.keyevent.KeyEventModule',
+    ];
+
+    const result = mergeContents({
+      tag: 'react-native-keyevent-imports',
+      src,
+      newSrc: importLines.join('\n'),
+      anchor: 'import android.os.Bundle',
+      offset: 1,
+      comment: '//',
+    });
+
+    config.modResults.contents = result.contents;
+    return config;
+  });
+};
+
 const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
-  // @ts-ignore
-  const newConfig = withMainActivity(config, (config) => {
+  return withMainActivity(config, (config) => {
     const src = config.modResults.contents;
 
     const isKotlin = /class MainActivity\s*:\s*ReactActivity\(\)/.test(src);
@@ -46,11 +68,11 @@ const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
     config.modResults.contents = result.contents;
     return config;
   });
-
-  return newConfig;
 };
+
 const withKeyEventPlugin: ConfigPlugin = (config) => {
-  config = withAndroidMainActivityBody(config);
+  config = withAndroidMainActivityImport(config); // ← import injector
+  config = withAndroidMainActivityBody(config);   // ← method injector
   return config;
 };
 

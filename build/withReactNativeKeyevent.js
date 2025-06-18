@@ -2,9 +2,27 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_plugins_1 = require("@expo/config-plugins");
 const generateCode_1 = require("@expo/config-plugins/build/utils/generateCode");
+const withAndroidMainActivityImport = (config) => {
+    return (0, config_plugins_1.withMainActivity)(config, (config) => {
+        const src = config.modResults.contents;
+        const importLines = [
+            'import android.view.KeyEvent',
+            'import com.github.kevinejohn.keyevent.KeyEventModule',
+        ];
+        const result = (0, generateCode_1.mergeContents)({
+            tag: 'react-native-keyevent-imports',
+            src,
+            newSrc: importLines.join('\n'),
+            anchor: 'import android.os.Bundle',
+            offset: 1,
+            comment: '//',
+        });
+        config.modResults.contents = result.contents;
+        return config;
+    });
+};
 const withAndroidMainActivityBody = (config) => {
-    // @ts-ignore
-    const newConfig = (0, config_plugins_1.withMainActivity)(config, (config) => {
+    return (0, config_plugins_1.withMainActivity)(config, (config) => {
         const src = config.modResults.contents;
         const isKotlin = /class MainActivity\s*:\s*ReactActivity\(\)/.test(src);
         const isJava = /public class MainActivity\s+extends\s+ReactActivity\s*{/.test(src);
@@ -41,10 +59,10 @@ const withAndroidMainActivityBody = (config) => {
         config.modResults.contents = result.contents;
         return config;
     });
-    return newConfig;
 };
 const withKeyEventPlugin = (config) => {
-    config = withAndroidMainActivityBody(config);
+    config = withAndroidMainActivityImport(config); // ← import injector
+    config = withAndroidMainActivityBody(config); // ← method injector
     return config;
 };
 exports.default = withKeyEventPlugin;
