@@ -49,3 +49,9 @@ const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
 
   return newConfig;
 };
+const withKeyEventPlugin: ConfigPlugin = (config) => {
+  config = withAndroidMainActivityBody(config);
+  return config;
+};
+
+export default withKeyEventPlugin;

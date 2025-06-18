@@ -43,3 +43,8 @@ const withAndroidMainActivityBody = (config) => {
     });
     return newConfig;
 };
+const withKeyEventPlugin = (config) => {
+    config = withAndroidMainActivityBody(config);
+    return config;
+};
+exports.default = withKeyEventPlugin;
