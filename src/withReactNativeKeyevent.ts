@@ -5,6 +5,8 @@ const withAndroidMainActivityImport: ConfigPlugin = (config: any) => {
   return withMainActivity(config, (config) => {
     const src = config.modResults.contents;
 
+    console.log(">> [KeyEventPlugin] Running import injection...");
+
     const importLines = [
       'import android.view.KeyEvent',
       'import com.github.kevinejohn.keyevent.KeyEventModule',
@@ -19,6 +21,12 @@ const withAndroidMainActivityImport: ConfigPlugin = (config: any) => {
       comment: '//',
     });
 
+    if (!result.didMerge) {
+      console.warn(">> [KeyEventPlugin] Import injection failed. Anchor not found or already injected.");
+    } else {
+      console.log(">> [KeyEventPlugin] Import lines injected.");
+    }
+
     config.modResults.contents = result.contents;
     return config;
   });
@@ -28,12 +36,18 @@ const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
   return withMainActivity(config, (config) => {
     const src = config.modResults.contents;
 
+    console.log(">> [KeyEventPlugin] Running method injection...");
+
     const isKotlin = /class MainActivity\s*:\s*ReactActivity\(\)/.test(src);
     const isJava = /public class MainActivity\s+extends\s+ReactActivity\s*{/.test(src);
 
     if (!isKotlin && !isJava) {
+      console.warn(">> [KeyEventPlugin] Could not detect MainActivity language (Java/Kotlin)");
       throw new Error("MainActivity does not appear to be a recognizable Java or Kotlin ReactActivity.");
     }
+
+    const language = isKotlin ? 'Kotlin' : 'Java';
+    console.log(`>> [KeyEventPlugin] Detected language: ${language}`);
 
     const anchor = isKotlin
       ? 'override fun onCreate(savedInstanceState: Bundle?) {'
@@ -56,16 +70,23 @@ const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
       isKotlin ? '    }' : '    }',
     ];
 
-   const result = mergeContents({
-  tag: 'react-native-keyevent-body',
-  src,
-  newSrc: newSrc.join('\n'),
-  anchor: isKotlin
-    ? 'override fun onCreate(savedInstanceState: Bundle?) {'
-    : 'public class MainActivity extends ReactActivity {',
-  offset: 1,
-  comment: '//',
-});
+    console.log(">> [KeyEventPlugin] Injecting after anchor:", anchor);
+    console.log(">> [KeyEventPlugin] Injecting code:\n" + newSrc.join('\n'));
+
+    const result = mergeContents({
+      tag: 'react-native-keyevent-body',
+      src,
+      newSrc: newSrc.join('\n'),
+      anchor,
+      offset: 1,
+      comment: '//',
+    });
+
+    if (!result.didMerge) {
+      console.warn(">> [KeyEventPlugin] Method injection failed. Anchor not found or already injected.");
+    } else {
+      console.log(">> [KeyEventPlugin] Method block injected.");
+    }
 
     config.modResults.contents = result.contents;
     return config;
@@ -73,8 +94,10 @@ const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
 };
 
 const withKeyEventPlugin: ConfigPlugin = (config) => {
-  config = withAndroidMainActivityImport(config); // ← import injector
-  config = withAndroidMainActivityBody(config);   // ← method injector
+  console.log(">> [KeyEventPlugin] Starting plugin...");
+  config = withAndroidMainActivityImport(config);
+  config = withAndroidMainActivityBody(config);
+  console.log(">> [KeyEventPlugin] Plugin finished.");
   return config;
 };
 
