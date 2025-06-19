@@ -56,14 +56,16 @@ const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
       isKotlin ? '    }' : '    }',
     ];
 
-    const result = mergeContents({
-      tag: 'react-native-keyevent-body',
-      src,
-      newSrc: newSrc.join('\n'),
-      anchor: 'import android.os.Bundle',
-      offset: 1,
-      comment: '//',
-    });
+   const result = mergeContents({
+  tag: 'react-native-keyevent-body',
+  src,
+  newSrc: newSrc.join('\n'),
+  anchor: isKotlin
+    ? 'override fun onCreate(savedInstanceState: Bundle?) {'
+    : 'public class MainActivity extends ReactActivity {',
+  offset: 1,
+  comment: '//',
+});
 
     config.modResults.contents = result.contents;
     return config;
