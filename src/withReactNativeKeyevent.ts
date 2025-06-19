@@ -51,9 +51,9 @@ const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
 
     console.log(`>> [KeyEventPlugin] Detected language: ${isKotlin ? "Kotlin" : "Java"}`);
 
-    const anchor = isKotlin
-      ? /override\s+fun\s+onCreate\(savedInstanceState:\s+Bundle\?\)\s*{/  // regex match
-      : /public\s+class\s+MainActivity\s+extends\s+ReactActivity\s*{/;
+   const anchor = isKotlin
+  ? /override\s*fun\s*onCreate\s*\(\s*savedInstanceState\s*:\s*Bundle\?\s*\)\s*\{/
+  : /public\s+class\s+MainActivity\s+extends\s+ReactActivity\s*{/;
 
     console.log(">> [KeyEventPlugin] Looking for anchor:", anchor.toString());
 

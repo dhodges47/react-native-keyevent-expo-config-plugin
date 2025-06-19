@@ -40,7 +40,7 @@ const withAndroidMainActivityBody = (config) => {
         }
         console.log(`>> [KeyEventPlugin] Detected language: ${isKotlin ? "Kotlin" : "Java"}`);
         const anchor = isKotlin
-            ? /override\s+fun\s+onCreate\(savedInstanceState:\s+Bundle\?\)\s*{/ // regex match
+            ? /override\s*fun\s*onCreate\s*\(\s*savedInstanceState\s*:\s*Bundle\?\s*\)\s*\{/
             : /public\s+class\s+MainActivity\s+extends\s+ReactActivity\s*{/;
         console.log(">> [KeyEventPlugin] Looking for anchor:", anchor.toString());
         src = stripGeneratedBlocks(src);
