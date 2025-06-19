@@ -2,9 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_plugins_1 = require("@expo/config-plugins");
 const generateCode_1 = require("@expo/config-plugins/build/utils/generateCode");
+// Helper to strip any prior plugin-injected blocks
+function stripGeneratedBlocks(src) {
+    return src.replace(/\/\/ @generated begin react-native-keyevent-[\s\S]*?\/\/ @generated end react-native-keyevent-[^\n]*\n?/g, '');
+}
 const withAndroidMainActivityImport = (config) => {
     return (0, config_plugins_1.withMainActivity)(config, (config) => {
-        const src = config.modResults.contents;
+        let src = config.modResults.contents;
+        src = stripGeneratedBlocks(src);
         console.log(">> [KeyEventPlugin] Running import injection...");
         const importLines = [
             'import android.view.KeyEvent',
@@ -30,7 +35,8 @@ const withAndroidMainActivityImport = (config) => {
 };
 const withAndroidMainActivityBody = (config) => {
     return (0, config_plugins_1.withMainActivity)(config, (config) => {
-        const src = config.modResults.contents;
+        let src = config.modResults.contents;
+        src = stripGeneratedBlocks(src);
         console.log(">> [KeyEventPlugin] Running method injection...");
         const isKotlin = /class MainActivity\s*:\s*ReactActivity\(\)/.test(src);
         const isJava = /public class MainActivity\s+extends\s+ReactActivity\s*{/.test(src);

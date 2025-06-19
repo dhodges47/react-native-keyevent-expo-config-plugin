@@ -1,9 +1,18 @@
 import { ConfigPlugin, withMainActivity } from "@expo/config-plugins";
 import { mergeContents } from "@expo/config-plugins/build/utils/generateCode";
 
+// Helper to strip any prior plugin-injected blocks
+function stripGeneratedBlocks(src: string): string {
+  return src.replace(
+    /\/\/ @generated begin react-native-keyevent-[\s\S]*?\/\/ @generated end react-native-keyevent-[^\n]*\n?/g,
+    ''
+  );
+}
+
 const withAndroidMainActivityImport: ConfigPlugin = (config: any) => {
   return withMainActivity(config, (config) => {
-    const src = config.modResults.contents;
+    let src = config.modResults.contents;
+    src = stripGeneratedBlocks(src);
 
     console.log(">> [KeyEventPlugin] Running import injection...");
 
@@ -34,7 +43,8 @@ const withAndroidMainActivityImport: ConfigPlugin = (config: any) => {
 
 const withAndroidMainActivityBody: ConfigPlugin = (config: any) => {
   return withMainActivity(config, (config) => {
-    const src = config.modResults.contents;
+    let src = config.modResults.contents;
+    src = stripGeneratedBlocks(src);
 
     console.log(">> [KeyEventPlugin] Running method injection...");
 
