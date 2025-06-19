@@ -2,14 +2,13 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_plugins_1 = require("@expo/config-plugins");
 const generateCode_1 = require("@expo/config-plugins/build/utils/generateCode");
-// Helper to strip any prior plugin-injected blocks
+// 🔧 Helper to strip plugin-injected code blocks before reinjecting
 function stripGeneratedBlocks(src) {
     return src.replace(/\/\/ @generated begin react-native-keyevent-[\s\S]*?\/\/ @generated end react-native-keyevent-[^\n]*\n?/g, '');
 }
 const withAndroidMainActivityImport = (config) => {
     return (0, config_plugins_1.withMainActivity)(config, (config) => {
-        let src = config.modResults.contents;
-        src = stripGeneratedBlocks(src);
+        const src = config.modResults.contents;
         console.log(">> [KeyEventPlugin] Running import injection...");
         const importLines = [
             'import android.view.KeyEvent',
@@ -17,7 +16,7 @@ const withAndroidMainActivityImport = (config) => {
         ];
         const result = (0, generateCode_1.mergeContents)({
             tag: 'react-native-keyevent-imports',
-            src,
+            src: stripGeneratedBlocks(src), // ✅ strip only right before merge
             newSrc: importLines.join('\n'),
             anchor: 'import android.os.Bundle',
             offset: 1,
@@ -35,11 +34,10 @@ const withAndroidMainActivityImport = (config) => {
 };
 const withAndroidMainActivityBody = (config) => {
     return (0, config_plugins_1.withMainActivity)(config, (config) => {
-        let src = config.modResults.contents;
-        src = stripGeneratedBlocks(src);
+        const originalSrc = config.modResults.contents;
         console.log(">> [KeyEventPlugin] Running method injection...");
-        const isKotlin = /class MainActivity\s*:\s*ReactActivity\(\)/.test(src);
-        const isJava = /public class MainActivity\s+extends\s+ReactActivity\s*{/.test(src);
+        const isKotlin = /class MainActivity\s*:\s*ReactActivity\(\)/.test(originalSrc);
+        const isJava = /public class MainActivity\s+extends\s+ReactActivity\s*{/.test(originalSrc);
         if (!isKotlin && !isJava) {
             console.warn(">> [KeyEventPlugin] Could not detect MainActivity language (Java/Kotlin)");
             throw new Error("MainActivity does not appear to be a recognizable Java or Kotlin ReactActivity.");
@@ -49,6 +47,7 @@ const withAndroidMainActivityBody = (config) => {
         const anchor = isKotlin
             ? 'override fun onCreate(savedInstanceState: Bundle?) {'
             : 'public class MainActivity extends ReactActivity {';
+        const src = stripGeneratedBlocks(originalSrc); // ✅ strip after detecting anchor
         const newSrc = [
             isKotlin ? '    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {' : '@Override\npublic boolean onKeyDown(int keyCode, KeyEvent event) {',
             '        KeyEventModule.getInstance().onKeyDownEvent(keyCode, event);',
